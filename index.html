@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Optimizer - AI Resume Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            min-height: 100vh;
+        }
+        
+        nav {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        nav .logo {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        nav .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        nav button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        nav button:hover {
+            background: #4338ca;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+        
+        .cta-button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .cta-button:hover {
+            background: #4338ca;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .app-section {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: #4f46e5;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .button-group button {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #4b5563;
+        }
+        
+        .button-group button.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .analyze-button {
+            width: 100%;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .analyze-button:hover {
+            background: #4338ca;
+        }
+        
+        .analyze-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .score-section {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .score-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4f46e5;
+            min-width: 100px;
+        }
+        
+        .score-bar {
+            flex: 1;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #4f46e5;
+            transition: width 0.3s;
+        }
+        
+        .summary {
+            color: #6b7280;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .results-section h3 {
+            font-size: 1.3rem;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .results-section ul {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .results-section li {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            color: #4b5563;
+        }
+        
+        .results-section li span:first-child {
+            color: #10b981;
+            font-weight: bold;
+            min-width: 30px;
+        }
+        
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .keyword-tag {
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .download-button {
+            width: 100%;
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .download-button:hover {
+            background: #059669;
+        }
+        
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #dc2626;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .feature-card p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo">⚡ ResumeBoost</div>
+            <div class="nav-links">
+                <button onclick="showHome()">Home</button>
+                <button onclick="showApp()">Try Free</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="homePage">
+        <div class="hero">
+            <h1>Get Hired Faster with AI</h1>
+            <p class="subtitle">Let artificial intelligence analyze your resume and cover letter. Get actionable feedback in seconds.</p>
+            <button class="cta-button" onclick="showApp()">Start Optimizing Free →</button>
+        </div>
+
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 3rem; color: #1f2937;">Why ResumeBoost?</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Analysis</h3>
+                    <p>Get results in seconds. No waiting, no emails.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered</h3>
+                    <p>Advanced AI knows what recruiters want to see.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Actionable Tips</h3>
+                    <p>Specific improvements you can implement right now.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔑</div>
+                    <h3>Keyword Suggestions</h3>
+                    <p>Stand out with industry-relevant keywords.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Score & Feedback</h3>
+                    <p>Get a score and detailed breakdown of your document.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📥</div>
+                    <h3>Download Report</h3>
+                    <p>Save your analysis and track improvements.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Page -->
+    <div id="appPage" class="hidden">
+        <div class="container">
+            <button class="back-button" onclick="showHome()">← Back to Home</button>
+            
+            <div class="app-section">
+                <h1 style="text-align: center; margin-bottom: 2rem;">Resume Optimizer</h1>
+                
+                <div class="form-group">
+                    <label>Document Type</label>
+                    <div class="button-group">
+                        <button class="active" onclick="setDocType('resume', this)">Resume</button>
+                        <button onclick="setDocType('cover letter', this)">Cover Letter</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Paste your <span id="docTypeLabel">resume</span></label>
+                    <textarea id="textInput" placeholder="Paste your resume or cover letter here..."></textarea>
+                </div>
+
+                <div id="errorMsg" class="error hidden"></div>
+
+                <button class="analyze-button" id="analyzeBtn" onclick="analyzeDocument()">Analyze Now</button>
+            </div>
+
+            <div id="resultsContainer" class="hidden">
+                <div class="app-section">
+                    <div class="score-section">
+                        <div class="score-display">
+                            <div class="score-number" id="scoreNumber">0</div>
+                            <div class="score-bar">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                                </div>
+                                <p class="summary" id="summarySentence"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="results-section">
+                        <h3>✨ Your Strengths</h3>
+                        <ul id="strengthsList"></ul>
+
+                        <h3>🎯 Improvements</h3>
+                        <ul id="improvementsList"></ul>
+
+                        <h3>🔑 Keywords to Add</h3>
+                        <div class="keywords" id="keywordsList"></div>
+
+                        <button class="download-button" onclick="downloadReport()">📥 Download Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDocType = 'resume';
+        let lastResults = null;
+
+        function showHome() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('appPage').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('appPage').classList.remove('hidden');
+        }
+
+        function setDocType(type, btn) {
+            currentDocType = type;
+            document.getElementById('docTypeLabel').textContent = type;
+            document.querySelectorAll('.button-group button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        async function analyzeDocument() {
+            const text = document.getElementById('textInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (!text.trim() || text.length < 100) {
+                errorMsg.textContent = 'Please paste a longer ' + currentDocType + ' (at least 100 characters)';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('analyzeBtn').textContent = 'Analyzing...';
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        messages: [{
+                            role: 'user',
+                            content: `Analyze this ${currentDocType} and respond ONLY with valid JSON, no other text:
+{
+  "score": <0-100>,
+  "strengths": [<3-4 items>],
+  "improvements": [<4-5 items>],
+  "keywords": [<5-7 items>],
+  "summary": "<1 sentence>"
+}
+
+${currentDocType}:
+${text}`
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const content = data.content[0].text;
+                const jsonText = content.replace(/```json|```/g, '').trim();
+                const results = JSON.parse(jsonText);
+                
+                lastResults = results;
+                displayResults(results);
+            } catch (err) {
+                errorMsg.textContent = 'Error analyzing document. Try again.';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('analyzeBtn').textContent = 'Analyze Now';
+            }
+        }
+
+        function displayResults(results) {
+            document.getElementById('scoreNumber').textContent = results.score;
+            document.getElementById('progressFill').style.width = results.score + '%';
+            document.getElementById('summarySentence').textContent = results.summary;
+
+            const strengthsList = document.getElementById('strengthsList');
+            strengthsList.innerHTML = results.strengths.map(s => `<li><span>✓</span><span>${s}</span></li>`).join('');
+
+            const improvementsList = document.getElementById('improvementsList');
+            improvementsList.innerHTML = results.improvements.map((imp, i) => `<li><span>${i+1}.</span><span>${imp}</span></li>`).join('');
+
+            const keywordsList = document.getElementById('keywordsList');
+            keywordsList.innerHTML = results.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('');
+
+            document.getElementById('resultsContainer').classList.remove('hidden');
+        }
+
+        function downloadReport() {
+            if (!lastResults) return;
+            
+            const content = `RESUME OPTIMIZATION REPORT
+============================
+
+Score: ${lastResults.score}/100
+
+Summary: ${lastResults.summary}
+
+STRENGTHS:
+${lastResults.strengths.map((s, i) => `${i+1}. ${s}`).join('\n')}
+
+IMPROVEMENTS:
+${lastResults.improvements.map((imp, i) => `${i+1}. ${imp}`).join('\n')}
+
+KEYWORDS TO ADD:
+${lastResults.keywords.join(', ')}
+
+Generated by ResumeBoost - AI Resume Analyzer
+`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'resume_analysis.txt';
+            a.click();
+        }
+    </script>
+</body>
+</html>
